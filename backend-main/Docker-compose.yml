@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  #mongoDB services
+  mongoDB:
+    container_name: db_container
+    image: mongo:latest
+    restart: always
+    volumes:
+      - db:/data/db
+
+  app:
+    container_name: app
+    depends_on:
+      - mongoDB
+    build: .
+    restart: unless-stopped
+    ports:
+      - 3001:3001
+    # environment:
+    #   PORT: 3000
+    #   MONGODB_URI: mongodb://mongoDB:27017
+
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      # - $PWD/Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+  #node API services
+
+  # api:
+  #   build: .
+  #   ports:
+  #     - 3001:3001
+  #   environment:
+  #       PORT: 3000
+  #       MONGODB_URI: mongodb://mongoDB:27017
+
+volumes:
+  db:
+  caddy_data:
+  caddy_config:
